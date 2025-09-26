@@ -14,7 +14,7 @@ Route::middleware('guest')->group(function () {
 // Middleware untuk user yang sudah login
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthenticationController::class, 'logout']);
-    Route::resource('spot', SpotController::class);
+    Route::apiResource('spot', SpotController::class);
 });
 
 Route::get('/user', function (Request $request) {

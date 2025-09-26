@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Enum\RoleEnum;
 use App\Http\Requests\StoreSpotRequest;
 use App\Http\Requests\UpdateSpotRequest;
 use App\Models\Category;
 use App\Models\Spot;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 
 class SpotController extends Controller
@@ -30,12 +30,12 @@ class SpotController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->paginate(request('size', 10));
 
-            return response()->json([
+            return Response::json([
                 'message' => "Spots",
                 'data' => $spots
             ], 200);
         } catch (Exception $e) {
-            return response()->json([
+            return Response::json([
                 'message' => $e->getMessage(),
                 'data' => null
             ], 500);
@@ -71,18 +71,18 @@ class SpotController extends Controller
 
                 Category::fillAndInsert($categories);
 
-                return response()->json([
+                return Response::json([
                     'message' => 'Spot created successfully',
                     'data' => $spot
                 ], 201);
             }
 
-            return response()->json([
+            return Response::json([
                 'message' => 'Spot not created',
                 'data' => null
             ], 500);
         } catch (Exception $e) {
-            return response()->json([
+            return Response::json([
                 'message' => $e->getMessage(),
                 'data' => null
             ], 500);
@@ -95,7 +95,7 @@ class SpotController extends Controller
     public function show(Spot $spot)
     {
         try {
-            return response()->json([
+            return Response::json([
                 'message' => 'Informasi Spot',
                 'data' => $spot->load([
                     'categories:category,spot_id',
@@ -110,7 +110,7 @@ class SpotController extends Controller
                     ->loadSum('reviews', 'rating')
             ]);
         } catch (Exception $e) {
-            return response()->json([
+            return Response::json([
                 'message' => $e->getMessage(),
                 'data' => null
             ], 500);
@@ -150,12 +150,12 @@ class SpotController extends Controller
                 'picture' => $picture_path ?? $spot->picture
             ]);
 
-            return response()->json([
+            return Response::json([
                 'message' => 'Spot updated successfully',
                 'data' => $spot
             ], 200);
         } catch (Exception $e) {
-            return response()->json([
+            return Response::json([
                 'message' => $e->getMessage(),
                 'data' => null
             ], 500);
@@ -171,23 +171,23 @@ class SpotController extends Controller
             $user = Auth::user();
 
             if ($spot->user_id != $user->id && $user->role != "ADMIN") {
-                return response()->json([
+                return Response::json([
                     'message' => 'Spot gagal di hapus',
                     'data' => null
-                ], 500);
+                ], 403);
             } else if ($spot->delete()) {
-                return response()->json([
+                return Response::json([
                     'message' => 'Spot berhasil di hapus',
                     'data' => null
                 ], 200);
             }
 
-            return response()->json([
+            return Response::json([
                 'message' => 'Spot gagal di hapus',
                 'data' => null
             ], 500);
         } catch (Exception $e) {
-            return response()->json([
+            return Response::json([
                 'message' => $e->getMessage(),
                 'data' => null
             ], 500);
