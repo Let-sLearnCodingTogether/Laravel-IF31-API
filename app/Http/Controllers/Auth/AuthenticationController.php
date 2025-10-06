@@ -21,28 +21,30 @@ class AuthenticationController extends Controller
 
             if (!Auth::attempt($validated)) {
                 return Response::json([
-                    'message' => 'Invalid credentials',
+                    'message' => "Email atau password tidak valid",
                     'data' => null
                 ], 401);
             }
 
             $user = $request->user();
-
-            $token = $user->createToken('auth_token')->plainTextToken;
+            $token = $user->createToken('learn_laravel_api', [])->plainTextToken;
 
             return Response::json([
-                'message' => 'Login successful',
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                ],
-                'access_token' => $token,
+                'message' => 'Login berhasil',
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $user->role
+                    ],
+                    'token' => $token
+                ]
             ], 200);
         } catch (Exception $e) {
             return Response::json([
-                'message' => 'Login failed',
-                'error' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'data' => null
             ], 500);
         }
     }
@@ -51,23 +53,25 @@ class AuthenticationController extends Controller
     {
         try {
             $validated = $request->safe()->all();
-
-            $passwordHash = Hash::make($validated['password']);
-
-            $validated['password'] = $passwordHash;
+            $validated['password'] = Hash::make($validated['password']);
 
             $response = User::create($validated);
 
             if ($response) {
                 return Response::json([
-                    'message' => 'User registered successfully',
-                    'data' => $response
+                    'message' => 'Berhasil register user baru, silahkan login',
+                    'data' => null
                 ], 201);
             }
+
+            return Response::json([
+                'message' => 'Gagal membuat user',
+                'data' => null
+            ], 400);
         } catch (Exception $e) {
             return Response::json([
-                'message' => 'Registration failed',
-                'error' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'data' => null
             ], 500);
         }
     }
@@ -75,17 +79,14 @@ class AuthenticationController extends Controller
     public function logout(Request $request)
     {
         try {
-            // Ambil user yang sedang login 
-            // ambil tokennya terus hapus
             $request->user()->currentAccessToken()->delete();
 
-            // berikan response jika berhasil logout
-            return response()->json([
-                'message' => 'Berhasil Logout',
+            return Response::json([
+                'message' => 'Berhasil logout',
                 'data' => null
             ], 200);
         } catch (Exception $e) {
-            return response()->json([
+            return Response::json([
                 'message' => $e->getMessage(),
                 'data' => null
             ], 500);

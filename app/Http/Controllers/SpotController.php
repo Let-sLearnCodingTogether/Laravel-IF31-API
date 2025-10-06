@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\RoleEnum;
 use App\Http\Requests\StoreSpotRequest;
 use App\Http\Requests\UpdateSpotRequest;
 use App\Models\Category;
@@ -170,11 +171,11 @@ class SpotController extends Controller
         try {
             $user = Auth::user();
 
-            if ($spot->user_id != $user->id && $user->role != "ADMIN") {
+            if ($spot->user_id != $user->id && $user->role != RoleEnum::ADMIN->value) {
                 return Response::json([
                     'message' => 'Spot gagal di hapus',
                     'data' => null
-                ], 403);
+                ], 500);
             } else if ($spot->delete()) {
                 return Response::json([
                     'message' => 'Spot berhasil di hapus',
@@ -186,6 +187,21 @@ class SpotController extends Controller
                 'message' => 'Spot gagal di hapus',
                 'data' => null
             ], 500);
+        } catch (Exception $e) {
+            return Response::json([
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 500);
+        }
+    }
+
+    public function reviews(Spot $spot)
+    {
+        try {
+            return Response::json([
+                'message' => 'list reviews',
+                'data' => $spot->reviews()->with('user:id,name')->get()
+            ], 200);
         } catch (Exception $e) {
             return Response::json([
                 'message' => $e->getMessage(),

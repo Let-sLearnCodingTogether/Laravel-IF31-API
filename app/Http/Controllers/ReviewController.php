@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Review;
 use App\Http\Requests\StoreReviewRequest;
 use App\Http\Requests\UpdateReviewRequest;
+use App\Models\Review;
+use Exception;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response;
 
 class ReviewController extends Controller
 {
@@ -21,7 +24,29 @@ class ReviewController extends Controller
      */
     public function store(StoreReviewRequest $request)
     {
-        //
+        try {
+            $validated = $request->safe()->all();
+            $validated['user_id'] = Auth::user()->id;
+
+            $review = Review::create($validated);
+
+            if($review) {
+                return Response::json([
+                    'message' => 'Review berhasil dibuat',
+                    'data' => $review
+                ], 201);
+            }
+
+            return Response::json([
+                'message' => 'Review gagal dibuat',
+                'data' => []
+            ], 500);
+        } catch (Exception $e) {
+            return Response::json([
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
     }
 
     /**
@@ -45,6 +70,23 @@ class ReviewController extends Controller
      */
     public function destroy(Review $review)
     {
-        //
+        try {
+            if($review->delete()) {
+                return Response::json([
+                    'message' => 'Review berhasil dihapus',
+                    'data' => []
+                ], 200);
+            }
+
+            return Response::json([
+                'message' => 'Review gagal dihapus',
+                'data' => []
+            ], 500);
+        } catch (Exception $e) {
+            return Response::json([
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
     }
 }

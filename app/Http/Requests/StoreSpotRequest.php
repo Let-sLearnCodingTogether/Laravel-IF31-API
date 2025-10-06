@@ -23,9 +23,9 @@ class StoreSpotRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string',
-            'address' => 'required|string',
-            'picture' => 'required|image|image:jpeg,png,jpg,webp|max:2048',
+            'name' => 'required|string|max:50',
+            'address' => 'required|string|max:255',
+            'picture' => 'required|image|mimes:jpeg,png,jpg|max:2048',
             'category' => 'required|array|min:1',
             'category.*' => 'required|string'
         ];

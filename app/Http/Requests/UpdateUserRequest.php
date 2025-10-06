@@ -2,16 +2,19 @@
 
 namespace App\Http\Requests;
 
+use App\Enum\RoleEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
-class StoreCategoryRequest extends FormRequest
+class UpdateUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::user()->role == RoleEnum::ADMIN->value;
     }
 
     /**
@@ -22,7 +25,11 @@ class StoreCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'nullable|string',
+            'role' => [
+                'nullable',
+                Rule::enum(RoleEnum::class)
+            ],
         ];
     }
 }
