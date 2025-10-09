@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(Spot::class);
             $table->foreignId('user_id')->constrained('users')->onUpdate('cascade')->onDelete('cascade');
             $table->text('content');
-            $table->integer('rating');
+            $table->float('rating');
             $table->timestamps();
             $table->softDeletes();
         });
